@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -16,6 +18,8 @@ public class GameManager : MonoBehaviour
     private CellType[,] Board = new CellType[6, 7];
     private string ez;
     private bool player1Turn = true;
+
+    [SerializeField] private GameObject endScreen;
     
     [Header("images")]
     [SerializeField] private Image[] caseLigne0;
@@ -28,8 +32,6 @@ public class GameManager : MonoBehaviour
 
     private Stack<Coords> undoCoords = new Stack<Coords>();
     private Stack<CellType> undoPlayer = new Stack<CellType>();
-    
-    
     private Stack<Coords> redoCoords = new Stack<Coords>();
     private Stack<CellType> redoPlayer = new Stack<CellType>();
     
@@ -61,7 +63,7 @@ public class GameManager : MonoBehaviour
         }
         else if (!player1Turn && TestToken(CellType.Player2,(short)colonne))
         {
-            Coords toto2 = DropToken(Board, CellType.Player2, colonne);
+            Coords toto2 = DropToken(Board, CellType.Player2, (int)Eval_Liam_Taccon(Board, CellType.Player2));
             Board[toto2.X, toto2.Y] = CellType.Player2;
             DisplayBoard(Board);
             TestIfWon(Board, CellType.Player2, toto2);
@@ -164,7 +166,6 @@ public class GameManager : MonoBehaviour
                 return false;
             }
         }
-        
         return true;
     }
 
@@ -269,6 +270,7 @@ public class GameManager : MonoBehaviour
 
                 if (suite >= 4)
                 {
+                    endScreen.SetActive(true);
                     Debug.Log("gagnééééééééééé");
                     return true;
                 }
@@ -276,7 +278,13 @@ public class GameManager : MonoBehaviour
         }
         return false;
     }
+    
 
+    public void Reset()
+    {
+        SceneManager.LoadScene(0);
+    }
+    
     public void Undo()
     {
         if(undoCoords.Count == 0)return;
@@ -287,6 +295,7 @@ public class GameManager : MonoBehaviour
         
         DisplayBoard(Board);
     }
+    
 
     public void Redo()
     {
@@ -299,9 +308,10 @@ public class GameManager : MonoBehaviour
         DisplayBoard(Board);
     }
     
-
+    
     float Eval_Liam_Taccon(CellType[,] Board, CellType joueur)
     {
+        
         return Random.Range(0, 7);
     }
 }    
