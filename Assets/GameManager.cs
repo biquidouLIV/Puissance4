@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +25,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Image[] caseLigne4;
     [SerializeField] private Image[] caseLigne5;
     Image[][] tableau = new Image[6][];
+
+    private Stack<Coords> undoCoords = new Stack<Coords>();
+    private Stack<CellType> undoPlayer = new Stack<CellType>();
     
+    
+    private Stack<Coords> redoCoords = new Stack<Coords>();
+    private Stack<CellType> redoPlayer = new Stack<CellType>();
     
     private void Start()
     {
@@ -46,15 +51,23 @@ public class GameManager : MonoBehaviour
         
         if (player1Turn && TestToken(CellType.Player1,(short)colonne))
         {
-            Board[DropToken(Board, CellType.Player1, colonne).X, DropToken(Board, CellType.Player1, colonne).Y] = CellType.Player1;
+            Coords toto = DropToken(Board, CellType.Player1, colonne);
+            Board[toto.X, toto.Y] = CellType.Player1;
             DisplayBoard(Board);
-            TestIfWon(Board, CellType.Player1, DropToken(Board, CellType.Player1, colonne));
+            TestIfWon(Board, CellType.Player1, toto);
+            
+            undoCoords.Push((toto));
+            undoPlayer.Push(CellType.Player1);
         }
         else if (!player1Turn && TestToken(CellType.Player2,(short)colonne))
         {
-            Board[DropToken(Board, CellType.Player2, colonne).X, DropToken(Board, CellType.Player2, colonne).Y] = CellType.Player2;
+            Coords toto2 = DropToken(Board, CellType.Player2, colonne);
+            Board[toto2.X, toto2.Y] = CellType.Player2;
             DisplayBoard(Board);
-            TestIfWon(Board, CellType.Player2, DropToken(Board, CellType.Player2, colonne));
+            TestIfWon(Board, CellType.Player2, toto2);
+            
+            undoCoords.Push((toto2));
+            undoPlayer.Push(CellType.Player2);
         }
         else
         {
@@ -168,7 +181,6 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("coupJoue  "+coupJoue.X+"/"+coupJoue.Y);
 
-
         for (int j = 0; j < 4; j++)
         {
             switch (j)
@@ -185,12 +197,12 @@ public class GameManager : MonoBehaviour
                     break;
                 case(2): // diago 
                     Debug.Log("premiere diago");
-                    directionX = -1;
+                    directionX = 1;
                     directionY = 1;
                     break;
                 case(3):
                     Debug.Log("deuxieme diago");
-                    directionX = -1;
+                    directionX = 1;
                     directionY = -1;
                     break;
                 
@@ -208,9 +220,10 @@ public class GameManager : MonoBehaviour
                     if (!(coupJoue.X + i * directionX < 0 || coupJoue.X + i * directionX > 5 || coupJoue.Y + i * directionY > 6 || coupJoue.Y + i * directionY < 0))
                     {
                         
-                        Debug.Log("kjhkjhgkjhg  "+(coupJoue.X + i * directionX)+"  "+ (coupJoue.Y + i * directionY));
+                        //Debug.Log("kjhkjhgkjhg  "+(coupJoue.X + i * directionX)+"  "+ (coupJoue.Y + i * directionY));
                         if (Board[coupJoue.X + i * directionX, coupJoue.Y + i * directionY] != joueur)
                         {
+                            
                             Debug.Log("changement de coté");
                             autreCote = true;
                             i = 1;
@@ -218,35 +231,39 @@ public class GameManager : MonoBehaviour
                         else
                         {
                             suite++;
-                            //Debug.Log(suite);
+                            //Debug.Log("dirx= "+directionX + "diry= "+directionY);
+                            Debug.Log("suite : "+ suite + "    Coords : " + +(coupJoue.X + i * directionX)+"/"+ (coupJoue.Y + i * directionY) + "   dirX : " + directionX +" dirY : " + directionY);
                         }
                     }
                     else
                     {
-                        return false;
+                        autreCote = true;
+                        i = 1;
+                        //break;
                     }
                 }
 
                 if (autreCote)
                 {
 
-                    Debug.Log((coupJoue.X - i*directionX) + " " + (coupJoue.Y - i*directionY));
+                    //Debug.Log((coupJoue.X - i*directionX) + " " + (coupJoue.Y - i*directionY));
                     if (!(coupJoue.X - i * directionX < 0 || coupJoue.X - i * directionX > 5 || coupJoue.Y - i * directionY > 6 || coupJoue.Y - i * directionY < 0))
                     {
-                        Debug.Log("noinonoion  "+(coupJoue.X - i * directionX)+"  "+ (coupJoue.Y - i * directionY));
+                        //Debug.Log("noinonoion  "+(coupJoue.X - i * directionX)+"  "+ (coupJoue.Y - i * directionY));
                         if (Board[coupJoue.X - i * directionX, coupJoue.Y - i * directionY] != joueur)
                         {
-                            //Debug.Log("pas gagné");
+                            Debug.Log("pas gagné");
+                            break;
                         }
                         else
                         {
                             suite++;
-                            //Debug.Log(suite);
+                            Debug.Log("suite : "+suite + "    Coords : " + +(coupJoue.X - i * directionX)+"/"+ (coupJoue.Y - i * directionY) + "   dirX : " + directionX +" dirY : " + directionY);
                         }
                     }
                     else
                     {
-                        return false;
+                        //break;
                     }
                 }
 
@@ -260,5 +277,31 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
+    public void Undo()
+    {
+        if(undoCoords.Count == 0)return;
+        
+        Board[undoCoords.Peek().X, undoCoords.Peek().Y] = CellType.Empty;
+        redoCoords.Push(undoCoords.Pop());
+        redoPlayer.Push(undoPlayer.Pop());
+        
+        DisplayBoard(Board);
+    }
 
+    public void Redo()
+    {
+        if(redoCoords.Count == 0)return;
+        
+        Board[redoCoords.Peek().X, redoCoords.Peek().Y] = redoPlayer.Peek();
+        undoCoords.Push(redoCoords.Pop());
+        undoPlayer.Push(redoPlayer.Pop());
+        
+        DisplayBoard(Board);
+    }
+    
+
+    float Eval_Liam_Taccon(CellType[,] Board, CellType joueur)
+    {
+        return Random.Range(0, 7);
+    }
 }    
