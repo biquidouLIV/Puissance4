@@ -7,46 +7,70 @@ using UnityEngine.UI;
 public partial class Connect4 : MonoBehaviour
 {
     
- float Eval_Liam_Taccon(CellType[,] Board, CellType joueur, int colonne)
+ float Eval_Liam_Taccon(CellType[,] Board, CellType joueur, int colonne, int profondeur)
     {
+        if (profondeur == 0)
+        {
+            return 0;
+        }
+        
         float score = 0.0f;
         Coords test = DropToken(Board,colonne);
         
+        
+        //si gagne
         if (TestIfWon(Board, joueur, test))
         {
-            score = 100000;
+            score += 100000;
         }
 
+        //si joueur gagne
         if (TestIfWon(Board, CellType.Player1, test))
         {
-            score = 10000;
+            score += 10000;
         }
 
+        //si trop haut
         if (!TestToken(joueur, (short)colonne))
         {
-            score = -100000;
+            score += -10000000;
         }
 
-        if (1 < test.X && test.X < 5)
-        {
-            score += 1;
-        }
 
-        if (test.Y >= 4)
-        {
-            score -= 3;
-        }
 
         score += CompteSuite(test, joueur);
+        score += CompteSuite(test, CellType.Player1);
         
         
-        Debug.Log("score : " + score);
-        return score;
+        Debug.Log("score colonne "+colonne+" : " + score);
+        return EvalPlayerTurn(Board, colonne, profondeur-1);
 
     }
 
+    private float EvalPlayerTurn(CellType[,] Board, int colonne, int profondeur)
+    {
+        if (profondeur == 0)
+        {
+            return 0;
+        }
+        
+        float score = 0;
+        for (int i = 0; i < Board.GetLength(1); i++)
+        {
+            CellType[,] newBoard = Board;
+            Coords co = DropToken(newBoard, i);
+            Board[co.X, co.Y] = CellType.Player2;
+            score -= Eval_Liam_Taccon(Board, CellType.Player1, i, profondeur -1);
+        }
+
+        return score;
+    }
+ 
+ 
+
     private int CompteSuite(Coords test, CellType joueur)
     {
+        int score = 0;
         int suite = 0;
         bool autreCote = false;
         int directionX = 0;
@@ -90,6 +114,7 @@ public partial class Connect4 : MonoBehaviour
                         else
                         {
                             suite += 2;
+                            score += suite;
                         }
                     }
                     else
@@ -111,13 +136,14 @@ public partial class Connect4 : MonoBehaviour
                         else
                         {
                             suite += 2;
+                            score += suite;
                         }
                     }
                 }
             }
         }
 
-        return suite;
+        return score;
     }
 }
 

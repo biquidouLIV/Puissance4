@@ -35,6 +35,8 @@ public partial class Connect4 : MonoBehaviour
     private Stack<Coords> redoCoords = new Stack<Coords>();
     private Stack<CellType> redoPlayer = new Stack<CellType>();
 
+    [SerializeField] private int profondeur;
+
     private void Start()
     {
         tableau[0] = caseLigne0;
@@ -82,11 +84,11 @@ public partial class Connect4 : MonoBehaviour
         int bestMove = 0;
         float bestMoveScore = 0.0f;
 
-        for (int i = 0; i < Board.GetLength(1) - 1; i++)
+        for (int i = 0; i < Board.GetLength(1); i++)
         {
-            if (Eval_Liam_Taccon(Board, CellType.Player2, i) > bestMoveScore)
+            if (Eval_Liam_Taccon(Board, CellType.Player2, i,profondeur) > bestMoveScore)
             {
-                bestMoveScore = Eval_Liam_Taccon(Board, CellType.Player2, i);
+                bestMoveScore = Eval_Liam_Taccon(Board, CellType.Player2, i,profondeur);
                 bestMove = i;
             }
 
@@ -99,7 +101,7 @@ public partial class Connect4 : MonoBehaviour
         {
             endScreen.SetActive(true);
             endScreennText.text = "IA gagnééééééééééé";
-            Debug.Log("joueur 2 gagnééééééééééé");
+            Debug.Log("IA gagnééééééééééé");
         }
 
         undoCoords.Push((toto2));
@@ -193,8 +195,6 @@ public partial class Connect4 : MonoBehaviour
                 return false;
             }
         }
-
-        Debug.Log("prooooooooooooooooooooooooooooooooooooooooooooooooouut");
         return true;
     }
 
@@ -208,30 +208,24 @@ public partial class Connect4 : MonoBehaviour
 
         int directionX = 0;
         int directionY = 0;
-
-        Debug.Log("coupJoue  " + coupJoue.X + "/" + coupJoue.Y);
-
+        
         for (int j = 0; j < 4; j++)
         {
             switch (j)
             {
                 case (0): //vertical
-                    Debug.Log("vertical");
                     directionX = -1;
                     directionY = 0;
                     break;
                 case (1): //horizontal
-                    Debug.Log("horizontal");
                     directionX = 0;
                     directionY = 1;
                     break;
                 case (2): // diago 
-                    Debug.Log("premiere diago");
                     directionX = 1;
                     directionY = 1;
                     break;
                 case (3):
-                    Debug.Log("deuxieme diago");
                     directionX = 1;
                     directionY = -1;
                     break;
@@ -245,27 +239,19 @@ public partial class Connect4 : MonoBehaviour
             {
                 if (!autreCote)
                 {
-
-                    //Debug.Log((coupJoue.X + i * directionX) + " " + (coupJoue.Y + i * directionY));
+                    
                     if (!(coupJoue.X + i * directionX < 0 || coupJoue.X + i * directionX > 5 ||
                           coupJoue.Y + i * directionY > 6 || coupJoue.Y + i * directionY < 0))
                     {
-
-                        //Debug.Log("kjhkjhgkjhg  "+(coupJoue.X + i * directionX)+"  "+ (coupJoue.Y + i * directionY));
+                        
                         if (Board[coupJoue.X + i * directionX, coupJoue.Y + i * directionY] != joueur)
                         {
-
-                            Debug.Log("changement de coté");
                             autreCote = true;
                             i = 1;
                         }
                         else
                         {
                             suite++;
-                            //Debug.Log("dirx= "+directionX + "diry= "+directionY);
-                            Debug.Log("suite : " + suite + "    Coords : " + +(coupJoue.X + i * directionX) + "/" +
-                                      (coupJoue.Y + i * directionY) + "   dirX : " + directionX + " dirY : " +
-                                      directionY);
                         }
                     }
                     else
@@ -278,23 +264,17 @@ public partial class Connect4 : MonoBehaviour
 
                 if (autreCote)
                 {
-
-                    //Debug.Log((coupJoue.X - i*directionX) + " " + (coupJoue.Y - i*directionY));
+                    
                     if (!(coupJoue.X - i * directionX < 0 || coupJoue.X - i * directionX > 5 ||
                           coupJoue.Y - i * directionY > 6 || coupJoue.Y - i * directionY < 0))
                     {
-                        //Debug.Log("noinonoion  "+(coupJoue.X - i * directionX)+"  "+ (coupJoue.Y - i * directionY));
                         if (Board[coupJoue.X - i * directionX, coupJoue.Y - i * directionY] != joueur)
                         {
-                            Debug.Log("pas gagné");
                             break;
                         }
                         else
                         {
                             suite++;
-                            Debug.Log("suite : " + suite + "    Coords : " + +(coupJoue.X - i * directionX) + "/" +
-                                      (coupJoue.Y - i * directionY) + "   dirX : " + directionX + " dirY : " +
-                                      directionY);
                         }
                     }
                     else
