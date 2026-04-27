@@ -1,13 +1,76 @@
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public partial class Connect4 : MonoBehaviour
 {
     
- float Eval_Liam_Taccon(CellType[,] Board, CellType joueur, int colonne)
+ float Eval_Liam_Taccon(CellType[,] Board, CellType joueur, int colonne,int profondeur)
+ {
+     return EvalIATurn(Board, colonne, profondeur);
+ }
+
+     private float EvalPlayerTurn(CellType[,] Board, int colonne, int profondeur)
+     {
+         float bestScore = 0;
+         if (profondeur == 0)
+         {
+             CellType[,] newBoard = (CellType[,])Board.Clone();
+             for (int i = 0; i < Board.GetLength(1); i++)
+             {
+                 float score = Eval(newBoard, CellType.Player1, i);
+                 if (score > bestScore)
+                 {
+                     bestScore = score;
+                 }
+             }
+             return bestScore;
+         }
+         
+         for (int i = 0; i < Board.GetLength(1); i++)
+         {
+             CellType[,] newBoard = (CellType[,])Board.Clone();
+             Coords co = DropToken(newBoard, i);
+             newBoard[co.X, co.Y] = CellType.Player1;
+
+             EvalIATurn(newBoard, i, profondeur - 1);
+         }
+
+         return bestScore;
+     }
+        
+        
+        
+     private float EvalIATurn(CellType[,] Board, int colonne, int profondeur)
+     {
+         float bestScore = 0;
+         if (profondeur == 0)
+         {
+             
+             CellType[,] newBoard = (CellType[,])Board.Clone();
+             for (int i = 0; i < Board.GetLength(1); i++)
+             {
+                 float score = Eval(newBoard, CellType.Player2, i);
+                 if (score > bestScore)
+                 {
+                     bestScore = score;
+                 }
+             }
+             return bestScore;
+         }
+         
+         for (int i = 0; i < Board.GetLength(1); i++)
+         {
+             CellType[,] newBoard = (CellType[,])Board.Clone();
+             Coords co = DropToken(newBoard, i);
+             newBoard[co.X, co.Y] = CellType.Player2;
+
+             EvalPlayerTurn(newBoard, i, profondeur - 1);
+         }
+
+         return bestScore;
+     }
+
+
+    private float Eval(CellType[,] Board, CellType joueur, int colonne)
     {
         float score = 0.0f;
         Coords test = DropToken(Board,colonne);
@@ -37,12 +100,9 @@ public partial class Connect4 : MonoBehaviour
         score += CompteSuite(test, CellType.Player1);
         
         
-        Debug.Log("score colonne "+colonne+" : " + score);
+        //Debug.Log("score colonne "+colonne+" : " + score);
         return score;
-
     }
-
-
  
  
 
