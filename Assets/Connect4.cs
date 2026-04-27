@@ -86,9 +86,9 @@ public partial class Connect4 : MonoBehaviour
 
         for (int i = 0; i < Board.GetLength(1); i++)
         {
-            if (Eval_Liam_Taccon(Board, CellType.Player2, i,profondeur) > bestMoveScore)
+            if (Eval_Liam_Taccon(Board, CellType.Player2, i) > bestMoveScore)
             {
-                bestMoveScore = Eval_Liam_Taccon(Board, CellType.Player2, i,profondeur);
+                bestMoveScore = Eval_Liam_Taccon(Board, CellType.Player2, i);
                 bestMove = i;
             }
 

@@ -7,13 +7,8 @@ using UnityEngine.UI;
 public partial class Connect4 : MonoBehaviour
 {
     
- float Eval_Liam_Taccon(CellType[,] Board, CellType joueur, int colonne, int profondeur)
+ float Eval_Liam_Taccon(CellType[,] Board, CellType joueur, int colonne)
     {
-        if (profondeur == 0)
-        {
-            return 0;
-        }
-        
         float score = 0.0f;
         Coords test = DropToken(Board,colonne);
         
@@ -43,28 +38,11 @@ public partial class Connect4 : MonoBehaviour
         
         
         Debug.Log("score colonne "+colonne+" : " + score);
-        return EvalPlayerTurn(Board, colonne, profondeur-1);
-
-    }
-
-    private float EvalPlayerTurn(CellType[,] Board, int colonne, int profondeur)
-    {
-        if (profondeur == 0)
-        {
-            return 0;
-        }
-        
-        float score = 0;
-        for (int i = 0; i < Board.GetLength(1); i++)
-        {
-            CellType[,] newBoard = Board;
-            Coords co = DropToken(newBoard, i);
-            Board[co.X, co.Y] = CellType.Player2;
-            score -= Eval_Liam_Taccon(Board, CellType.Player1, i, profondeur -1);
-        }
-
         return score;
+
     }
+
+
  
  
 
