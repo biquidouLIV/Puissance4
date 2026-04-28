@@ -69,10 +69,12 @@ public partial class Connect4 : MonoBehaviour
                 endScreen.SetActive(true);
                 endScreennText.text = "joueur 1 gagnééééééééééé";
                 Debug.Log("joueur 1 gagnééééééééééé");
+                return;
             }
         }
         else
         {
+            
             return;
         }
 
@@ -82,16 +84,19 @@ public partial class Connect4 : MonoBehaviour
     private void PlayIA()
     {
         int bestMove = 0;
-        float bestMoveScore = 0.0f;
+        float bestMoveScore = float.MinValue;
 
         for (int i = 0; i < Board.GetLength(1); i++)
         {
-            if (Eval_Liam_Taccon(Board, CellType.Player2, i,profondeur) > bestMoveScore)
+            if (Board[Board.GetLength(0) - 1, i] == CellType.Empty)
             {
-                bestMoveScore = Eval_Liam_Taccon(Board, CellType.Player2, i,profondeur);
-                bestMove = i;
+                float score = Eval_Liam_Taccon(Board, CellType.Player2, i, profondeur);
+                if (score > bestMoveScore)
+                {
+                    bestMoveScore = score;
+                    bestMove = i;
+                }
             }
-
         }
 
         Coords toto2 = DropToken(Board, bestMove);
@@ -175,7 +180,7 @@ public partial class Connect4 : MonoBehaviour
 
     private Coords DropToken(CellType[,] Board, int colonne)
     {
-        for (int i = 0; i < Board.GetLength(1) - 1; i++)
+        for (int i = 0; i < Board.GetLength(0); i++)
         {
             if (Board[i, colonne] == CellType.Empty)
             {

@@ -6449,7 +6449,7 @@ MonoBehaviour:
   - {fileID: 49620660}
   - {fileID: 1492312667}
   - {fileID: 1917947849}
-  profondeur: 2
+  profondeur: 0
 --- !u!4 &2002804174
 Transform:
   m_ObjectHideFlags: 0
